@@ -25,7 +25,7 @@ echo
 
 mkdir -p .tools
 if [ ! -f $ROOT_DIR/.tools/cbdep ]; then
-    curl -o $ROOT_DIR/.tools/cbdep http://downloads.build.couchbase.com/cbdep/cbdep.$(uname -s | tr "[:upper:]" "[:lower:]")-$(uname -m)
+    curl -o $ROOT_DIR/.tools/cbdep http://packages.couchbase.com/cbdep.$(uname -s | tr "[:upper:]" "[:lower:]")-$(uname -m)
     chmod +x $ROOT_DIR/.tools/cbdep
 fi
 
