@@ -23,15 +23,9 @@ echo
 echo " ======== Installing cbdeps ========"
 echo
 
-mkdir -p .tools
-if [ ! -f $ROOT_DIR/.tools/cbdep ]; then
-    curl -o $ROOT_DIR/.tools/cbdep http://packages.couchbase.com/cbdep.$(uname -s | tr "[:upper:]" "[:lower:]")-$(uname -m)
-    chmod +x $ROOT_DIR/.tools/cbdep
-fi
-
-CMAKE="$ROOT_DIR/.tools/cmake-${CMAKE_VER}/bin/cmake"
+CMAKE="$ROOT_DIR/tools/cmake-${CMAKE_VER}/bin/cmake"
 if [ ! -f ${CMAKE} ]; then
-    $ROOT_DIR/.tools/cbdep install -d .tools cmake ${CMAKE_VER}
+    $ROOT_DIR/tools/cbdep install -d tools cmake ${CMAKE_VER}
 fi
 
 echo
