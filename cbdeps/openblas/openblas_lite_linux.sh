@@ -1,7 +1,8 @@
 #!/bin/bash -e
 
-ROOT_DIR=$1
-INSTALL_DIR=$2
+ARCH=$1
+ROOT_DIR=$2
+INSTALL_DIR=$3
 
 CMAKE_VER="3.28.1"
 
@@ -10,7 +11,13 @@ case $(uname -s) in
     *) echo "Not running on a Linux system, aborting..."; exit 4;;
 esac
 
-mkdir -p $ROOT_DIR/openblas/build
+case $ARCH in
+    x86_64) ;;
+    aarch64);;
+    *) echo "Invalid architecture $ARCH, aborting..."; exit 5;;
+esac
+
+mkdir -p $ROOT_DIR/openblas/build_$ARCH
 
 echo
 echo " ======== Installing cbdeps ========"
@@ -31,17 +38,31 @@ echo
 echo "====  Building Linux binary ==="
 echo
 
-pushd $ROOT_DIR/openblas/build > /dev/null
-$CMAKE \
- -DCMAKE_C_COMPILER=/opt/gcc-13.2.0/bin/gcc \
- -DBUILD_WITHOUT_LAPACK=0 \
- -DNOFORTRAN=1 \
- -DDYNAMIC_ARCH=1 \
- -DBUILD_LAPACK_DEPRECATED=0 \
- -DDYNAMIC_LIST="EXCAVATOR;HASWELL;ZEN;SKYLAKEX;COOPERLAKE;SAPPHIRERAPIDS" \
- -DBUILD_WITHOUT_CBLAS=1 \
- -DCMAKE_BUILD_TYPE=Release \
- -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
- -S ..
+pushd $ROOT_DIR/openblas/build_$ARCH > /dev/null
+if [ "$ARCH" == "x86_64" ]; then 
+    $CMAKE \
+    -DCMAKE_C_COMPILER=/opt/gcc-13.2.0/bin/gcc \
+    -DBUILD_WITHOUT_LAPACK=0 \
+    -DNOFORTRAN=1 \
+    -DDYNAMIC_ARCH=1 \
+    -DBUILD_LAPACK_DEPRECATED=0 \
+    -DDYNAMIC_LIST="EXCAVATOR;HASWELL;ZEN;SKYLAKEX;COOPERLAKE;SAPPHIRERAPIDS" \
+    -DBUILD_WITHOUT_CBLAS=1 \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
+    -S ..
+ else
+    $CMAKE \
+    -DCMAKE_C_COMPILER=/opt/gcc-13.2.0/bin/gcc \
+    -DBUILD_WITHOUT_LAPACK=0 \
+    -DNOFORTRAN=1 \
+    -DDYNAMIC_ARCH=0 \
+    -DTARGET=ARMV8 \
+    -DBUILD_LAPACK_DEPRECATED=0 \
+    -DBUILD_WITHOUT_CBLAS=1 \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
+    -S ..
+ fi
 
 make -j$(nproc) install
